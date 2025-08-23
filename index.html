@@ -19,6 +19,18 @@
     h1 { margin: 0 0 8px; font-size: 20px; }
     p { margin: 0; opacity: .8; line-height: 1.6; }
     code { background: rgba(0,0,0,.06); padding: .1em .4em; border-radius: 6px; }
+
+    /* 자동재생 차단 시 표시되는 오버레이 버튼 */
+    .gate {
+      position: fixed; inset: 0; display: none; place-items: center;
+      background: rgba(0,0,0,.45); backdrop-filter: blur(2px);
+    }
+    .gate.show { display: grid; }
+    .btn {
+      font-size: 18px; padding: 14px 22px; border-radius: 999px;
+      border: 0; cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    }
   </style>
 </head>
 <body>
@@ -29,12 +41,18 @@
         이 페이지는 접속할 때마다 <code>1.mp3</code> ~ <code>3.mp3</code> 중 하나를 무작위로 재생합니다.<br/>
         <span id="status">불러오는 중…</span>
       </p>
+      <!-- 필요하면 기본 컨트롤 보이기: controls 속성 추가 -->
       <audio id="player" preload="auto" playsinline></audio>
     </div>
   </div>
 
+  <!-- 자동재생이 막힌 경우에만 뜨는 오버레이 -->
+  <div id="gate" class="gate" aria-hidden="true">
+    <button id="playBtn" class="btn">▶ 재생하기</button>
+  </div>
+
   <script>
-    // 1) 1.mp3 ~ 3.mp3 리스트
+    // 1) 1.mp3 ~ 10.mp3 생성
     const files = Array.from({ length: 3 }, (_, i) => `${i + 1}.mp3`);
 
     // 2) 무작위 선택
@@ -42,28 +60,58 @@
 
     const audio = document.getElementById('player');
     const statusEl = document.getElementById('status');
+    const gate = document.getElementById('gate');
+    const playBtn = document.getElementById('playBtn');
 
     // 선택된 파일로 소스 교체
     const selected = pickRandom();
     audio.src = selected;
 
-    function updateStatus(text) {
-      statusEl.textContent = text;
-    }
+    // 재생 성공/실패 핸들러
+    function updateStatus(text) { statusEl.textContent = text; }
 
     async function tryAutoplay() {
       try {
         await audio.play();
         updateStatus(`재생 중: ${selected}`);
+        gate.classList.remove('show');
+        gate.setAttribute('aria-hidden', 'true');
       } catch (err) {
-        updateStatus('브라우저에서 자동재생이 차단되었습니다.');
-        console.warn(err);
+        // 브라우저 정책으로 인해 자동재생이 차단됨
+        updateStatus('자동재생이 차단되어 버튼이 표시되었습니다.');
+        gate.classList.add('show');
+        gate.setAttribute('aria-hidden', 'false');
       }
     }
 
+    // 첫 로드에서 자동재생 시도
     window.addEventListener('DOMContentLoaded', () => {
+      // iOS 등 일부 환경은 사용자가 상호작용하기 전까지 안 될 수 있음
       tryAutoplay();
     });
+
+    // 사용자가 버튼을 누르면 재생 재시도
+    playBtn.addEventListener('click', async () => {
+      try {
+        await audio.play();
+        updateStatus(`재생 중: ${selected}`);
+        gate.classList.remove('show');
+        gate.setAttribute('aria-hidden', 'true');
+      } catch (err) {
+        updateStatus('재생에 실패했습니다. 다른 브라우저를 시도해 보세요.');
+      }
+    });
+
+    // (선택) 트랙이 끝나면 다음 랜덤 트랙을 이어서 재생하고 싶다면 주석 해제
+    // audio.addEventListener('ended', () => {
+    //   const next = pickRandom();
+    //   audio.src = next;
+    //   updateStatus(`재생 중: ${next}`);
+    //   audio.play().catch(() => {
+    //     gate.classList.add('show');
+    //     gate.setAttribute('aria-hidden', 'false');
+    //   });
+    // });
   </script>
 </body>
 </html>
