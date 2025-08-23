@@ -26,7 +26,7 @@
     <div class="card">
       <h1>랜덤 오디오 자동재생</h1>
       <p>
-        이 페이지는 접속할 때마다 <code>1.wav</code> ~ <code>3.wav</code> 중 하나를 무작위로 재생합니다.<br/>
+        이 페이지는 접속할 때마다 <code>1.mp3</code> ~ <code>3.mp3</code> 중 하나를 무작위로 재생합니다.<br/>
         <span id="status">불러오는 중…</span>
       </p>
       <audio id="player" preload="auto" playsinline></audio>
@@ -34,8 +34,8 @@
   </div>
 
   <script>
-    // 1) 1.wav ~ 3.wav 리스트
-    const files = Array.from({ length: 3 }, (_, i) => `${i + 1}.wav`);
+    // 1) 1.mp3 ~ 3.mp3 리스트
+    const files = Array.from({ length: 3 }, (_, i) => `${i + 1}.mp3`);
 
     // 2) 무작위 선택
     const pickRandom = () => files[Math.floor(Math.random() * files.length)];
