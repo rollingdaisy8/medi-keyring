@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>달빛 명언 키링</title>
+<style>
+  :root{
+    --bg-top:#0b0f2f;
+    --bg-bottom:#1a1f47;
+    --glass:rgba(255,255,255,.18);
+    --glass-hover:rgba(255,255,255,.32);
+    --text:#f7f8ff;
+    --shadow:rgba(0,0,0,.28);
+    --max-width:520px; /* 큰 기기에서 너무 커지지 않도록 */
+  }
+
+  /* 페이지 전체 배경 */
+  body{
+    margin:0;
+    min-height:100dvh;
+    background:linear-gradient(to bottom,var(--bg-top),var(--bg-bottom));
+    color:var(--text);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, sans-serif;
+    display:grid;
+    place-items:center;
+  }
+
+  /* 9:16 고정 뷰포트 박스 */
+  .viewport{
+    position:relative;
+    width:100vw;
+    max-width:var(--max-width);
+    /* 9:16 비율 고정. 브라우저가 지원하지 않으면 JS로 보정됨 */
+    aspect-ratio:9 / 16;
+    overflow:hidden;
+    border-radius:28px;
+    box-shadow:0 20px 60px var(--shadow);
+    /* 안전 영역 여백 */
+    padding: max(env(safe-area-inset-top,16px),16px)
+             max(env(safe-area-inset-right,16px),16px)
+             max(env(safe-area-inset-bottom,16px),20px)
+             max(env(safe-area-inset-left,16px),16px);
+    background:linear-gradient(to bottom,var(--bg-top),var(--bg-bottom));
+  }
+
+  /* 레이아웃: 상단 여백, 중앙 달, 하단 버튼 2개 */
+  .stage{
+    height:100%;
+    display:grid;
+    grid-template-rows: 1fr auto auto 1fr;
+    align-items:center;
+    justify-items:center;
+    gap:18px;
+  }
+
+  /* 큰 달 */
+  .moon{
+    width:min(46vh, 46svh, 68vw);
+    aspect-ratio:1/1;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 32% 28%, #fff 0%, #f0f0f0 55%, #dfdfdf 100%);
+    box-shadow:
+      0 0 80px rgba(255,255,210,.45),
+      inset -12px -14px 28px rgba(0,0,0,.08);
+    transition:transform .6s ease, filter .6s ease;
+  }
+
+  /* 서브 카피 (선택) */
+  .subtitle{
+    opacity:.9;
+    font-size:clamp(14px, 1.8vw, 16px);
+    letter-spacing:.2px;
+    text-align:center;
+  }
+
+  /* 버튼 영역 */
+  .buttons{
+    display:flex;
+    gap:14px;
+  }
+  .btn{
+    appearance:none;
+    border:0;
+    padding:14px 18px;
+    border-radius:16px;
+    font-weight:600;
+    font-size:16px;
+    color:var(--text);
+    background:var(--glass);
+    box-shadow:0 6px 18px var(--shadow);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor:pointer;
+    transition: background .25s ease, transform .12s ease;
+  }
+  .btn:focus-visible{ outline:2px solid rgba(255,255,255,.7); outline-offset:2px; }
+  .btn:hover{ background:var(--glass-hover); }
+  .btn:active{ transform:translateY(1px) scale(.995); }
+
+  /* 버튼이 2개일 때 폭 맞추기 */
+  .btn{ min-width:140px; text-align:center; }
+
+  /* 모션 민감 사용자 배려 */
+  @media (prefers-reduced-motion: reduce){
+    .moon{ transition:none; }
+    .btn{ transition:none; }
+  }
+
+  /* backdrop-filter 미지원 브라우저 폴백 */
+  @supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))){
+    .btn{ background:rgba(255,255,255,.12); }
+  }
+</style>
+</head>
+<body>
+  <main class="viewport" role="main" aria-label="달빛 명언 첫 화면">
+    <section class="stage">
+      <div></div>
+      <div class="moon" aria-hidden="true"></div>
+      <p class="subtitle">달에게 뭐라고 물어볼까요?</p>
+      <div class="buttons" role="group" aria-label="선택">
+        <button class="btn" id="btn-random" aria-label="달에게 그냥 물어보기">달에게 물어보기</button>
+        <button class="btn" id="btn-emotion" aria-label="내 감정 고르기">감정 고르기</button>
+      </div>
+    </section>
+  </main>
+
+<script>
+  /* 모바일 브라우저에서 aspect-ratio 미지원/오동작 대비: JS 보정 */
+  (function fixAspect(){
+    const box = document.querySelector('.viewport');
+    if (!box) return;
+    const apply = () => {
+      const vw = Math.min(window.innerWidth, parseInt(getComputedStyle(box).maxWidth));
+      const vh = window.innerHeight; // 주소창 포함 동적으로 반영
+      // 9:16 기준으로 가능한 한 크게 맞추기
+      const targetH = Math.min(vh, Math.round(vw * (16/9)));
+      const targetW = Math.round(targetH * (9/16));
+      box.style.width = targetW + 'px';
+      box.style.height = targetH + 'px';
+    };
+    apply();
+    window.addEventListener('resize', apply, {passive:true});
+  })();
+
+  // 데모 인터랙션(필요 시 교체)
+  document.getElementById('btn-random').addEventListener('click', () => {
+    // 여기에 랜덤 명언 로직 연결
+    document.querySelector('.moon').style.transform = 'scale(1.03)';
+    setTimeout(()=>document.querySelector('.moon').style.transform='scale(1)',400);
+  });
+  document.getElementById('btn-emotion').addEventListener('click', () => {
+    // 감정 선택 화면으로 전환
+    // location.href = '/emotion';  // 실제 라우팅 예시
+    document.querySelector('.moon').style.filter = 'brightness(1.15)';
+    setTimeout(()=>document.querySelector('.moon').style.filter='brightness(1)',450);
+  });
+</script>
+</body>
+</html>
