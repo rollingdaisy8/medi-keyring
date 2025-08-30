@@ -41,8 +41,8 @@
              max(env(safe-area-inset-right,16px),16px)
              max(env(safe-area-inset-bottom,16px),20px)
              max(env(safe-area-inset-left,16px),16px);
-    background:linear-gradient(to bottom,var(--bg-top),var(--bg-bottom));
-  }
+    background:url('background.png') no-repeat center/cover;
+}
 
   /* 레이아웃: 상단 여백, 중앙 달, 하단 버튼 2개 */
   .stage{
@@ -59,8 +59,8 @@
     width:min(46vh, 46svh, 68vw);
     aspect-ratio:1/1;
     border-radius:50%;
-    background:
-      radial-gradient(circle at 32% 28%, #fff 0%, #f0f0f0 55%, #dfdfdf 100%);
+    background: url('moon.png') no-repeat center/contain;
+  background-color: transparent;
     box-shadow:
       0 0 80px rgba(255,255,210,.45),
       inset -12px -14px 28px rgba(0,0,0,.08);
